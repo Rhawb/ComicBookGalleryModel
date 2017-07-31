@@ -14,32 +14,22 @@ namespace ComicBookGalleryModel
 		{
 			using (var context = new Context())
 			{
-				var series = new Series()
-				{
-					Title = "The Amazing Spider-Man"
-				};
 
-				context.ComicBooks.Add(new ComicBook()
-				{
-					Series = series,
-					IssueNumber = 1,
-					PublishedOn = DateTime.Today
-				});
-				context.ComicBooks.Add(new ComicBook()
-				{
-					Series = series,
-					IssueNumber = 2,
-					PublishedOn = DateTime.Today
-				});
-
-				context.SaveChanges();
 
 				var comicBooks = context.ComicBooks
 					.Include(cb => cb.Series)
+					.Include(cb => cb.Artists.Select(a => a.Artist))
+					.Include(cb => cb.Artists.Select(a => a.Role))
 					.ToList();
+
 				foreach(var comicbook in comicBooks)
 				{
+					var artistRoleNames = comicbook.Artists
+						.Select(a => $"{a.Artist.Name} - {a.Role.Name}").ToList();
+					var artistRolesDisplayText = string.Join(", ", artistRoleNames);
+
 					Console.WriteLine(comicbook.DisplayText);
+					Console.WriteLine(artistRolesDisplayText);
 				}
 				Console.ReadLine();
 			}
